@@ -5,12 +5,21 @@ const getCars = async (req, res) => {
   if (cars.length > 0) {
     res.json(cars);
   } else {
-    res.json("Please input cars into the database");
+    res.json({ status: "error", msg: "Please input cars into the database" });
   }
 };
 
 const addCars = async (req, res) => {
   console.log("adding cars function");
+};
+
+const getSingleCar = async (req, res) => {
+  const cars = await Cars.findById(req.params.id);
+  if (cars) {
+    res.json(cars);
+  } else {
+    res.json({ status: "error", msg: "Car not found" });
+  }
 };
 
 const seedCars = async (req, res) => {
@@ -33,7 +42,7 @@ const seedCars = async (req, res) => {
       {
         _id: "672ad73be33bf6cac70f3358",
         brand: "Audi",
-        model: "A3",
+        model: "A5",
         type: "Saloon",
       },
     ]);
@@ -44,4 +53,4 @@ const seedCars = async (req, res) => {
   }
 };
 
-module.exports = { getCars, addCars, seedCars };
+module.exports = { getCars, addCars, seedCars, getSingleCar };
