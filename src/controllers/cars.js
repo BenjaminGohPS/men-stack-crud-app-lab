@@ -1,4 +1,5 @@
 const Cars = require("../models/Cars");
+const mongoose = require("mongoose");
 
 const getCars = async (req, res) => {
   const cars = await Cars.find();
@@ -10,13 +11,30 @@ const getCars = async (req, res) => {
 };
 
 const addCars = async (req, res) => {
-  console.log("adding cars function");
+  console.log("add car function");
 };
 
 const getSingleCar = async (req, res) => {
+  const carId = req.params.id;
+
+  // Check if the ID is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(carId)) {
+    return res.status(400).json({ status: "error", msg: "Invalid car ID" });
+  } else {
+    const cars = await Cars.findById(req.params.id);
+    if (cars) {
+      res.json(cars);
+    } else {
+      res.json({ status: "error", msg: "Car not found" });
+    }
+  }
+};
+
+const deleteSingleCar = async (req, res) => {
   const cars = await Cars.findById(req.params.id);
   if (cars) {
-    res.json(cars);
+    await Cars.findByIdAndDelete(req.params.id);
+    res.json({ status: "ok", msg: "Car deleted" });
   } else {
     res.json({ status: "error", msg: "Car not found" });
   }
@@ -48,9 +66,8 @@ const seedCars = async (req, res) => {
     ]);
     res.json({ status: "ok", msg: "seeding successful" });
   } catch (error) {
-    console.log(error.message);
     res.status(400).json({ status: "error", msg: "seeding error" });
   }
 };
 
-module.exports = { getCars, addCars, seedCars, getSingleCar };
+module.exports = { getCars, addCars, seedCars, getSingleCar, deleteSingleCar };
