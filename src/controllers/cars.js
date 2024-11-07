@@ -11,7 +11,15 @@ const getCars = async (req, res) => {
 };
 
 const addCars = async (req, res) => {
-  console.log("add car function");
+  const newCar = new Cars({
+    brand: req.body.brand,
+    model: req.body.model,
+    type: req.body.type,
+  });
+
+  await newCar.save();
+
+  res.json({ status: "ok", msg: "saved" });
 };
 
 const getSingleCar = async (req, res) => {
@@ -21,7 +29,7 @@ const getSingleCar = async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(carId)) {
     return res.status(400).json({ status: "error", msg: "Invalid car ID" });
   } else {
-    const cars = await Cars.findById(req.params.id);
+    const cars = await Cars.findById(carId);
     if (cars) {
       res.json(cars);
     } else {
@@ -30,13 +38,38 @@ const getSingleCar = async (req, res) => {
   }
 };
 
-const deleteSingleCar = async (req, res) => {
-  const cars = await Cars.findById(req.params.id);
-  if (cars) {
-    await Cars.findByIdAndDelete(req.params.id);
-    res.json({ status: "ok", msg: "Car deleted" });
+const updateCar = async (req, res) => {
+  const carId = req.params.id;
+  if (!mongoose.Types.ObjectId.isValid(carId)) {
+    return res.status(400).json({ status: "error", msg: "Invalid car ID" });
   } else {
-    res.json({ status: "error", msg: "Car not found" });
+    const cars = await Cars.findById(carId);
+    if (cars) {
+      const response = await Cars.findByIdAndUpdate(carId, {
+        brand: req.body.brand,
+        model: req.body.model,
+        type: req.body.type,
+      });
+      await console.log(response);
+      res.json({ status: "ok", msg: "updated" });
+    } else {
+      res.json({ status: "error", msg: "Car not found" });
+    }
+  }
+};
+
+const deleteSingleCar = async (req, res) => {
+  const carId = req.params.id;
+  if (!mongoose.Types.ObjectId.isValid(carId)) {
+    return res.status(400).json({ status: "error", msg: "Invalid car ID" });
+  } else {
+    const cars = await Cars.findById(carId);
+    if (cars) {
+      await Cars.findByIdAndDelete(carId);
+      res.json({ status: "ok", msg: "Car deleted" });
+    } else {
+      res.json({ status: "error", msg: "Car not found" });
+    }
   }
 };
 
@@ -70,4 +103,11 @@ const seedCars = async (req, res) => {
   }
 };
 
-module.exports = { getCars, addCars, seedCars, getSingleCar, deleteSingleCar };
+module.exports = {
+  getCars,
+  addCars,
+  seedCars,
+  getSingleCar,
+  deleteSingleCar,
+  updateCar,
+};
